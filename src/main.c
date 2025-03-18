@@ -1027,7 +1027,7 @@ void WM_8994_ADC_SPKR() {
 
 	/*SIDETONE R1569 (0x0621) */
 	/*ST_HPF_CUT [2:0] (110) 45 HZ, ST_HPF (1) ENABLED, STR_SEL (0), STL_SEL (0) */
-	tx_bit = 0x0340;
+	tx_bit = 0x0300;
 	rx_bit = shift_register(tx_bit);
 	ret = HAL_I2C_Mem_Write(&hi2c4, WM8994_ADDRESS, SIDE_TONE , I2C_MEMADD_SIZE_16BIT, &rx_bit, 2, 1000);
 
@@ -1046,6 +1046,9 @@ void WM_8994_ADC_SPKR() {
 
 	ret = HAL_I2C_Mem_Write(&hi2c4, WM8994_ADDRESS, DAC1L_MIXR_ROUTING	 , I2C_MEMADD_SIZE_16BIT, &rx_bit, 2, 1000);
 
+
+	tx_bit = 0x0020;
+	rx_bit = shift_register(tx_bit);
 	ret = HAL_I2C_Mem_Write(&hi2c4, WM8994_ADDRESS, DAC1R_MIXR_ROUTING	 , I2C_MEMADD_SIZE_16BIT, &rx_bit, 2, 1000);
 
 	/*POWER MANAGEMENT 5 R5 (0x0005) */
@@ -1112,7 +1115,7 @@ void WM_8994_ADC_SPKR() {
 	/*SPKMIXL_ATTENUATION R34 (0X0022) */
 	/*SPKAB_REF_SEL (1), DAC1L_SPKMIXL_VOL (0) O DB, SPKMIXL_VOL (00) O DB */
 
-	tx_bit = 0x0100;
+	tx_bit = 0x0000;
 	rx_bit = shift_register(tx_bit);
 	ret = HAL_I2C_Mem_Write(&hi2c4, WM8994_ADDRESS, SPEAKER_MIXR_ATN_L, I2C_MEMADD_SIZE_16BIT, &rx_bit, 2, 1000);
 
@@ -1131,14 +1134,14 @@ void WM_8994_ADC_SPKR() {
 
 	ret = HAL_I2C_Mem_Write(&hi2c4, WM8994_ADDRESS,  SPEAKER_VOL_R, I2C_MEMADD_SIZE_16BIT, &rx_bit, 2, 1000);
 
-	/* R37 CLASS D (0X0025)
-	* SPKOUTL_BOOST [2:0] (100) 2.00X BOOST (+6.0 DB)
-	* SPKOUTR_BOOST [2:0] (100) 2.00X BOOST (+6.0DB)
-	*/
-
-	tx_bit = 0x0164;
-	rx_bit = shift_register(tx_bit);
-	ret = HAL_I2C_Mem_Write(&hi2c4, WM8994_ADDRESS, CLASS_D, I2C_MEMADD_SIZE_16BIT, &rx_bit, 2, 1000);
+//	/* R37 CLASS D (0X0025)
+//	* SPKOUTL_BOOST [2:0] (100) 2.00X BOOST (+6.0 DB)
+//	* SPKOUTR_BOOST [2:0] (100) 2.00X BOOST (+6.0DB)
+//	*/
+//
+//	tx_bit = 0x0164;
+//	rx_bit = shift_register(tx_bit);
+//	ret = HAL_I2C_Mem_Write(&hi2c4, WM8994_ADDRESS, CLASS_D, I2C_MEMADD_SIZE_16BIT, &rx_bit, 2, 1000);
 
 }
 
