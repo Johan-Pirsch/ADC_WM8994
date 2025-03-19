@@ -185,6 +185,7 @@
 #define AIF2_DAC_FILTERS_1		0x0520
 
 #define AIF2_CLOCKING_1			0x0204
+#define AIF1_DAC_FILTERS_1		0x0420
 
 
 #define AUDIO_BUFFER_SIZE 4096  // Circular buffer size
@@ -1080,6 +1081,17 @@ void WM_8994_AIF1_SPKR() {
 
 	HAL_Delay(50);
 
+	/* wm8994 Errata Work-Arounds */
+	tx_bit = 0x0003;
+	rx_bit = shift_register(tx_bit);
+	ret = HAL_I2C_Mem_Write(&hi2c4, WM8994_ADDRESS, 0x102 , I2C_MEMADD_SIZE_16BIT, &rx_bit, 2, 1000);
+
+
+	tx_bit = 0x0000;
+	rx_bit = shift_register(tx_bit);
+	ret = HAL_I2C_Mem_Write(&hi2c4, WM8994_ADDRESS,  0x817 , I2C_MEMADD_SIZE_16BIT, &rx_bit, 2, 1000);
+
+	ret = HAL_I2C_Mem_Write(&hi2c4, WM8994_ADDRESS, 0x102 , I2C_MEMADD_SIZE_16BIT, &rx_bit, 2, 1000);
 
 
 	/*ENABLE VMID SOFT START FAST, STARTUP BIAS CURRENT ENABLED */
@@ -1317,18 +1329,13 @@ void WM_8994_AIF1_SPKR() {
 	/*AIF2DACR_TO_DAC1R*/
 	/*ENABLE AIF2 (LEFT) TO DAC1L, ENABLE AIF2 RIGHT TO DAC1R */
 
-	tx_bit = 0x0004;
+	tx_bit = 0x0001;
 	rx_bit = shift_register(tx_bit);
-	ret = HAL_I2C_Mem_Write(&hi2c4, WM8994_ADDRESS, AIF1_LEFT_MIXR , I2C_MEMADD_SIZE_16BIT, &rx_bit, 2, 1000);
+	ret = HAL_I2C_Mem_Write(&hi2c4, WM8994_ADDRESS, DAC1_LEFT_MIXR , I2C_MEMADD_SIZE_16BIT, &rx_bit, 2, 1000);
 
-	tx_bit = 0x0004;
+	tx_bit = 0x0001;
 	rx_bit = shift_register(tx_bit);
-	ret = HAL_I2C_Mem_Write(&hi2c4, WM8994_ADDRESS, AIF1_RIGHT_MIXR , I2C_MEMADD_SIZE_16BIT, &rx_bit, 2, 1000);
-
-
-
-
-
+	ret = HAL_I2C_Mem_Write(&hi2c4, WM8994_ADDRESS, DAC1_RIGHT_MIXR , I2C_MEMADD_SIZE_16BIT, &rx_bit, 2, 1000);
 
 
 
@@ -1357,50 +1364,63 @@ void WM_8994_AIF1_SPKR() {
 	rx_bit = shift_register(tx_bit);
 	ret = HAL_I2C_Mem_Write(&hi2c4, WM8994_ADDRESS, AIF1_ADC1_FILTERS, I2C_MEMADD_SIZE_16BIT, &rx_bit, 2, 1000);
 
-	/*AIF2 INPUT PATH VOLUME CONTROL */
-	/*R1282 (0X0502) */
-	/*AIF2 DACLEFT VOLUME */
-	tx_bit = 0x01C0;
-	rx_bit = shift_register(tx_bit);
-	ret = HAL_I2C_Mem_Write(&hi2c4, WM8994_ADDRESS, AIF2_DACL_LEFT_VOL, I2C_MEMADD_SIZE_16BIT, &rx_bit, 2, 1000);
 
-	/*AIF2 INPUT PATH VOLUME CONTROL */
-	/*R1282 (0X0503) */
-	/*AIF2 DAC RIGHT  VOLUME */
+	/* AIF1 INPUT PATH VOLUME CONTROL */
+	/*AIF1 DAC1LEFT VOLUME */
+	/*AIF1DAC1_VU (1), AIF1DAC1L_VOL[7:0] (C0h) (0dB) */
 	tx_bit = 0x01C0;
 	rx_bit = shift_register(tx_bit);
-	ret = HAL_I2C_Mem_Write(&hi2c4, WM8994_ADDRESS, AIF2_DACR_LEFT_VOL, I2C_MEMADD_SIZE_16BIT, &rx_bit, 2, 1000);
+	ret = HAL_I2C_Mem_Write(&hi2c4, WM8994_ADDRESS, AIF1_DAC1_LEFT_VOL , I2C_MEMADD_SIZE_16BIT, &rx_bit, 2, 1000);
+
+	/* AIF1 INPUT PATH VOLUME CONTROL */
+	/*AIF1 ADC1 RIGHT VOLUME */
+	/*AIF1ADC1_VU (1), AIF1ADC1R_VOL[7:0] (C0h) (0dB) */
+	tx_bit = 0x01C0;
+	rx_bit = shift_register(tx_bit);
+	ret = HAL_I2C_Mem_Write(&hi2c4, WM8994_ADDRESS, AIF1_DAC1_RIGHT_VOL , I2C_MEMADD_SIZE_16BIT, &rx_bit, 2, 1000);
 
 	/*AIF2 DAC INPUT PATH SOFT MUTE CONTROL */
 	tx_bit = 0x0000;
 	rx_bit = shift_register(tx_bit);
-	ret = HAL_I2C_Mem_Write(&hi2c4, WM8994_ADDRESS, AIF2_DAC_FILTERS_1, I2C_MEMADD_SIZE_16BIT, &rx_bit, 2, 1000);
+	ret = HAL_I2C_Mem_Write(&hi2c4, WM8994_ADDRESS, AIF1_DAC_FILTERS_1, I2C_MEMADD_SIZE_16BIT, &rx_bit, 2, 1000);
 
-	/*AIF2 CLK ENABLE SECTION */
-
-	/* AIF2 CLOCKING (1) R512 (0x0204) */
-	/*AIF2_CLK_SRC (00) MCLK1, AIF2CLK_INV (0) AIF2CLK NOT INVERTED, AIF2CLK_DIV (0) AIF2CLK, AIF2CLK_ENA (1) ENABLED */
-	tx_bit = 0x0001;
-	rx_bit = shift_register(tx_bit);
-	ret = HAL_I2C_Mem_Write(&hi2c4, WM8994_ADDRESS, AIF2_CLOCKING_1, I2C_MEMADD_SIZE_16BIT, &rx_bit, 2, 1000);
-
-
-
-
-
-
-
-
-
+//	/*AIF2 INPUT PATH VOLUME CONTROL */
+//	/*R1282 (0X0502) */
+//	/*AIF2 DACLEFT VOLUME */
+//	tx_bit = 0x01C0;
+//	rx_bit = shift_register(tx_bit);
+//	ret = HAL_I2C_Mem_Write(&hi2c4, WM8994_ADDRESS, AIF2_DACL_LEFT_VOL, I2C_MEMADD_SIZE_16BIT, &rx_bit, 2, 1000);
+//
+//	/*AIF2 INPUT PATH VOLUME CONTROL */
+//	/*R1282 (0X0503) */
+//	/*AIF2 DAC RIGHT  VOLUME */
+//	tx_bit = 0x01C0;
+//	rx_bit = shift_register(tx_bit);
+//	ret = HAL_I2C_Mem_Write(&hi2c4, WM8994_ADDRESS, AIF2_DACR_LEFT_VOL, I2C_MEMADD_SIZE_16BIT, &rx_bit, 2, 1000);
+//
+//	/*AIF2 DAC INPUT PATH SOFT MUTE CONTROL */
+//	tx_bit = 0x0000;
+//	rx_bit = shift_register(tx_bit);
+//	ret = HAL_I2C_Mem_Write(&hi2c4, WM8994_ADDRESS, AIF2_DAC_FILTERS_1, I2C_MEMADD_SIZE_16BIT, &rx_bit, 2, 1000);
+//
+//	/*AIF2 CLK ENABLE SECTION */
+//
+//	/* AIF2 CLOCKING (1) R512 (0x0204) */
+//	/*AIF2_CLK_SRC (00) MCLK1, AIF2CLK_INV (0) AIF2CLK NOT INVERTED, AIF2CLK_DIV (0) AIF2CLK, AIF2CLK_ENA (1) ENABLED */
+//	tx_bit = 0x0001;
+//	rx_bit = shift_register(tx_bit);
+//	ret = HAL_I2C_Mem_Write(&hi2c4, WM8994_ADDRESS, AIF2_CLOCKING_1, I2C_MEMADD_SIZE_16BIT, &rx_bit, 2, 1000);
+//
+//
 
 
 	/*R5 POWER MANAGEMENT (5) (0X0005) */
-	/* AIF2DACL_ENA (1), AIF2DACR_ENA (1), AIF1DAC2L_ENA (0), AIF1DAC2R_ENA (0), AIF1DAC1L_ENA (0) ENABLED, AIF1DAC1R_ENA (0) ENABLED */
+	/* AIF2DACL_ENA (0), AIF2DACR_ENA (0), AIF1DAC2L_ENA (0), AIF1DAC2R_ENA (0), AIF1DAC1L_ENA (1) ENABLED, AIF1DAC1R_ENA (1) ENABLED */
 	/*DAC2L_ENA (0) DISABLED, DAC2R_ENA (0) DISABLED */
 	/*DAC2L_ENA (0) DISABLED LEFT DAC2 DISABLED, DAC2R_ENA (0) DISABLED RIGHT DAC2 DISABLED */
 	/*DAC1L_ENA (1) LEFT DAC 1 ENABLED, DAC1R_ENA (1) RIGHT DAC1 ENABLED */
 
-	tx_bit = 0x3003;
+	tx_bit = 0x0303;
 	rx_bit = shift_register(tx_bit);
 	ret = HAL_I2C_Mem_Write(&hi2c4, WM8994_ADDRESS, PWR_MANAGE_5 , I2C_MEMADD_SIZE_16BIT, &rx_bit, 2, 1000);
 
@@ -1893,9 +1913,6 @@ void assert_failed(uint8_t *file, uint32_t line)
   /* USER CODE BEGIN 6 */
   /* User can add his own implementation to report the file name and line number,
      ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
-  /* USER CODE END 6 */
-}
-#endif /* USE_FULL_ASSERT */
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
